@@ -33,7 +33,6 @@ process FastQC {
 
 
 process READ_FASTQS {
-    debug true
     input:
     tuple val(sampleId), path(read1), path(read2)
 
@@ -105,6 +104,8 @@ process BWA_INDEX {
 process BWA_ALIGN {
     publishDir params.BWA_outdir, mode: 'copy'
 
+    label 'big_mem'
+
     input:
     tuple val(sample_id), path(read1), path(read2)
     path reference_genome
@@ -120,7 +121,7 @@ process BWA_ALIGN {
 
     script:
     """
-    bwa mem ${reference_genome} ${read1} ${read2} | samtools view -bS  > ${sample_id}_bwa.bam
+    bwa mem -t 12 ${reference_genome} ${read1} ${read2} | samtools view -bS  > ${sample_id}_bwa.bam
     samtools sort ${sample_id}_bwa.bam -o ${sample_id}_bwa_sorted.bam
     samtools depth -a ${sample_id}_bwa_sorted.bam | awk '{c++;s+=\$3}END{print s/c}' > ${sample_id}_mean_read_depth.log
     samtools depth -a ${sample_id}_bwa_sorted.bam | awk '{c++; if(\$3>0) total+=1}END{print (total/c)*100}' > ${sample_id}_breadth_of_coverage.log
@@ -152,7 +153,9 @@ process BOWTIE_INDEX {
 process BOWTIE2_ALIGN {
     
     publishDir params.Bowtie2_outdir, mode: 'copy'
-
+    
+    label 'big_mem'
+    
     input:
     tuple val(sample_id), path(read1), path(read2)
     path(reference_genome_dir)
@@ -167,7 +170,7 @@ process BOWTIE2_ALIGN {
 
     script:
     """
-    bowtie2 -x bowtie_index -1 ${read1} -2 ${read2}  | samtools view -bS  > ${sample_id}_bowtie.bam
+    bowtie2 -x bowtie_index -p 12 -1 ${read1} -2 ${read2}  | samtools view -bS  > ${sample_id}_bowtie.bam
     samtools sort ${sample_id}_bowtie.bam -o ${sample_id}_bowtie_sorted.bam
     samtools depth -a ${sample_id}_bowtie_sorted.bam | awk '{c++;s+=\$3}END{print s/c}' > ${sample_id}_mean_read_depth.log
     samtools depth -a ${sample_id}_bowtie_sorted.bam | awk '{c++; if(\$3>0) total+=1}END{print (total/c)*100}' > ${sample_id}_breadth_of_coverage.log
