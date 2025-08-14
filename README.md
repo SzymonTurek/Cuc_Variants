@@ -5,8 +5,8 @@ FastQC, MultiQC, BWA, Bowtie2, bcftools, GATK, freebayes.
 ## Instruction:
 In the first step, you need to complete the sample_info.csv file so that it contains information about the sample name and and file paths. 
 
-| sample_id  |fastq1  |fastq2|
-| ------------- | ------------- |
+| sample_id  |fastq1  |fastq2 |
+| ------------- | ------------- || ------------- |
 | Sample1  | input_fastq/Sample1_1.fastq.gz  |nput_fastq/Sample1_2.fastq.gz |
 | Sample2  | input_fastq/Sample2_1.fastq.gz  |nput_fastq/Sample2_2.fastq.gz|
 
